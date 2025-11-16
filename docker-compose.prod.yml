@@ -1,23 +1,27 @@
-version: '3.8'
+# NOTE: The 'version' attribute has been removed as it's obsolete.
+
 services:
   redis:
     image: redis:alpine
     restart: always
+
   api:
-    # --- IMPORTANT: CHANGE THIS ---
-    image: ghcr.io/YOUR_USERNAME/shortify-devops-project/api:latest
+    # --- IMPORTANT: CHANGE THIS TO YOUR LOWERCASE USERNAME ---
+    image: ghcr.io/mohammed0khater/shortify-devops-project/api:latest
     restart: always
     environment:
       # CODESPACE_NAME is an auto-provided env var for the public URL
       - DOMAIN=${CODESPACE_NAME}-80.githubpreview.dev
     depends_on:
       - redis
+
   frontend:
-    # --- IMPORTANT: CHANGE THIS ---
-    image: ghcr.io/Mohammed0Khater/shortify-devops-project/frontend:latest
+    # --- IMPORTANT: CHANGE THIS TO YOUR LOWERCASE USERNAME ---
+    image: ghcr.io/mohammed0khater/shortify-devops-project/frontend:latest
     restart: always
     depends_on:
       - api
+
   nginx:
     image: nginx:alpine
     restart: always
@@ -28,6 +32,7 @@ services:
     depends_on:
       - frontend
       - api
+
   prometheus:
     image: prom/prometheus
     restart: always
@@ -35,6 +40,7 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
   grafana:
     image: grafana/grafana
     restart: always
