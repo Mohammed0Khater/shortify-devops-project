@@ -1,1 +1,0 @@
-# shortify-devops-project
