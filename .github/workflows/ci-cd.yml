@@ -16,6 +16,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set lowercase repository name
+        # This is the most reliable way to set an environment variable from a command
+        run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_LOWER=$REPO_LOWER" >> $GITHUB_ENV
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -28,13 +34,13 @@ jobs:
         with:
           context: ./app/api
           push: true
-          # Use the built-in tolower function for a robust lowercase tag
-          tags: ghcr.io/${{ github.repository | tolower }}/api:latest
+          # Use the environment variable set in the previous step
+          tags: ghcr.io/${{ env.REPO_LOWER }}/api:latest
 
       - name: Build and push Frontend image
         uses: docker/build-push-action@v4
         with:
           context: ./app/frontend
           push: true
-          # Use the built-in tolower function for a robust lowercase tag
-          tags: ghcr.io/${{ github.repository | tolower }}/frontend:latest
+          # Use the environment variable set in the previous step
+          tags: ghcr.io/${{ env.REPO_LOWER }}/frontend:latest
