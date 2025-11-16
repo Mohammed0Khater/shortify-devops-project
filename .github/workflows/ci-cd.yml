@@ -1,32 +1,45 @@
 name: CI/CD Pipeline
+
 on:
   push:
     branches:
-      - main
+      - main # Trigger on push to main branch
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      packages: write # Needed to push to GHCR
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- FIX IS HERE ---
+      # We convert the repository name to lowercase to ensure a valid Docker tag
+      - name: Set lowercase repository name
+        run: echo "REPO_LOWER=${{ github.repository }}" | tr '[:upper:]' '[:lower:]' >> ${GITHUB_ENV}
+
       - name: Build and push API image
         uses: docker/build-push-action@v4
         with:
           context: ./app/api
           push: true
-          tags: ghcr.io/${{ github.repository }}/api:latest
+          # Use the new lowercase environment variable
+          tags: ghcr.io/${{ env.REPO_LOWER }}/api:latest
+
       - name: Build and push Frontend image
         uses: docker/build-push-action@v4
         with:
           context: ./app/frontend
           push: true
-          tags: ghcr.io/${{ github.repository }}/frontend:latest
+          # Use the new lowercase environment variable
+          tags: ghcr.io/${{ env.REPO_LOWER }}/frontend:latest
