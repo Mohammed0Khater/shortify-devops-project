@@ -23,23 +23,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # --- FIX IS HERE ---
-      # We convert the repository name to lowercase to ensure a valid Docker tag
-      - name: Set lowercase repository name
-        run: echo "REPO_LOWER=${{ github.repository }}" | tr '[:upper:]' '[:lower:]' >> ${GITHUB_ENV}
-
       - name: Build and push API image
         uses: docker/build-push-action@v4
         with:
           context: ./app/api
           push: true
-          # Use the new lowercase environment variable
-          tags: ghcr.io/${{ env.REPO_LOWER }}/api:latest
+          # Use the built-in tolower function for a robust lowercase tag
+          tags: ghcr.io/${{ github.repository | tolower }}/api:latest
 
       - name: Build and push Frontend image
         uses: docker/build-push-action@v4
         with:
           context: ./app/frontend
           push: true
-          # Use the new lowercase environment variable
-          tags: ghcr.io/${{ env.REPO_LOWER }}/frontend:latest
+          # Use the built-in tolower function for a robust lowercase tag
+          tags: ghcr.io/${{ github.repository | tolower }}/frontend:latest
